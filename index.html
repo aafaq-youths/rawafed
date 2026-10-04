@@ -745,9 +745,31 @@ html[data-theme="dark"] .form-submit:focus-visible{outline-color:#fff}
             <input class="form-control" id="universityMajor" name="universityMajor" type="text" required>
           </div>
 
-          <div class="question-card">
-            <label class="question-label" for="jobTitle">المسمى الوظيفي <span class="required">*</span></label>
-            <input class="form-control" id="jobTitle" name="jobTitle" type="text" required>
+          <div class="question-card full">
+            <label class="question-label" id="jobTitleLabel">المسمى الوظيفي <span class="required">*</span></label>
+            <div class="choice-grid" role="radiogroup" aria-labelledby="jobTitleLabel">
+              <div class="choice">
+                <input id="jobTitleTeacher" name="jobTitle" type="radio" value="معلم" required>
+                <label for="jobTitleTeacher">معلم</label>
+              </div>
+              <div class="choice">
+                <input id="jobTitleComplexManager" name="jobTitle" type="radio" value="مدير مجمع" required>
+                <label for="jobTitleComplexManager">مدير مجمع</label>
+              </div>
+              <div class="choice">
+                <input id="jobTitleSupervisor" name="jobTitle" type="radio" value="مشرف" required>
+                <label for="jobTitleSupervisor">مشرف</label>
+              </div>
+              <div class="choice">
+                <input id="jobTitleValuesOfficer" name="jobTitle" type="radio" value="مسؤول بيئة قيمية" required>
+                <label for="jobTitleValuesOfficer">مسؤول بيئة قيمية</label>
+              </div>
+              <div class="choice">
+                <input id="jobTitleOther" name="jobTitle" type="radio" value="أخرى" required>
+                <label for="jobTitleOther">أخرى</label>
+              </div>
+            </div>
+            <input class="form-control" id="jobTitleOtherText" name="jobTitleOther" type="text" placeholder="اكتب المسمى الوظيفي" style="margin-top:12px;display:none">
           </div>
 
           <div class="question-card">
@@ -983,6 +1005,10 @@ html[data-theme="dark"] .form-submit:focus-visible{outline-color:#fff}
         submissionInput.value='';
         status.classList.remove('show');
         activeSubmissionId='';
+        var jobTitleOtherTextEl=document.getElementById('jobTitleOtherText');
+        if(jobTitleOtherTextEl){ jobTitleOtherTextEl.style.display='none'; jobTitleOtherTextEl.required=false; jobTitleOtherTextEl.value=''; }
+        var jobTitleOtherRadioEl=document.getElementById('jobTitleOther');
+        if(jobTitleOtherRadioEl) jobTitleOtherRadioEl.value='أخرى';
 
         showSuccess();
         return;
@@ -1028,7 +1054,27 @@ html[data-theme="dark"] .form-submit:focus-visible{outline-color:#fff}
     document.head.appendChild(script);
   }
 
+  /* ---------- المسمى الوظيفي: إظهار حقل "أخرى" ---------- */
+  var jobTitleRadios=Array.prototype.slice.call(form.querySelectorAll('input[name="jobTitle"]'));
+  var jobTitleOtherText=document.getElementById('jobTitleOtherText');
+  if(jobTitleRadios.length && jobTitleOtherText){
+    var jobTitleOtherRadio=document.getElementById('jobTitleOther');
+    function syncJobTitleOther(){
+      var isOther=jobTitleOtherRadio && jobTitleOtherRadio.checked;
+      jobTitleOtherText.style.display=isOther?'block':'none';
+      jobTitleOtherText.required=!!isOther;
+      if(!isOther) jobTitleOtherText.value='';
+    }
+    jobTitleRadios.forEach(function(r){ r.addEventListener('change',syncJobTitleOther); });
+    syncJobTitleOther();
+  }
+
   form.addEventListener('submit',function(e){
+    var jobTitleOtherRadio=document.getElementById('jobTitleOther');
+    if(jobTitleOtherRadio && jobTitleOtherRadio.checked && jobTitleOtherText){
+      jobTitleOtherRadio.value=jobTitleOtherText.value.trim();
+    }
+
     if(!form.checkValidity()){
       e.preventDefault();
       form.reportValidity();
